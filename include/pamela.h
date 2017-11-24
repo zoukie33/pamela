@@ -5,4 +5,4 @@
 
 // Includes
 
-#endif /* !PAMELA_H_
+#endif /* !PAMELA_H_ */

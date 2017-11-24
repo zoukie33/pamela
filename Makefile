@@ -1,8 +1,8 @@
 CC		=	gcc
 
-NAME		=	pamela
+NAME		=	pamela.so
 
-NAME_TEST	=	pamela_test
+NAME_TEST	=	pamela_test.so
 
 SRC		=	src/pamela.c
 
@@ -20,8 +20,6 @@ FLAGS_T		=	-lpam -lpam_misc
 
 RM		=	rm -rf
 
-all		:	$(NAME)
-
 $(NAME)		:	$(OBJ)
 			$(CC) -o $(NAME) $(LDFLAGS) $(OBJ)
 
@@ -37,25 +35,24 @@ fclean		:	clean
 re		:	fclean all
 
 install		:
-			$(NAME)
-			echo "Sharing Pamela so."
+			@echo "Sharing Pamela so."
 			sudo ld -x --shared -o /lib/security/pamela.so pamela.o
-			echo "Editing common-auth config."
+			@echo "Editing common-auth config."
 			echo "auth sufficient pamela.so" > /etc/pam.d/common-auth
-			echo "Editing common-account config."
+			@echo "Editing common-account config."
 			echo "account sufficient pamela.so" > /etc/pam.d/common-account
 uninstall	:
-			echo "Suppression de de pamela so."
+			@echo "Suppression de de pamela so."
 			$(RM) /lib/security/pamela.so
-			echo "Suppression de la ligne auth."
+			@echo "Suppression de la ligne auth."
 			sed 'auth sufficient pamela.so' /etc/pam.d/common-auth
-			echo "Suppression de la ligne account."
+			@echo "Suppression de la ligne account."
 			sed 'account sufficient pamela.so' /etc/pam.d/common-account
 
 check		:
 
 test		:
-			echo "Compiling pamela_test."
+			@echo "Compiling pamela_test."
 			$(NAME_TEST)
 
-.PHONY		:	all clean fclean re test install uninstall check
+.PHONY		:	clean fclean re test install uninstall check
