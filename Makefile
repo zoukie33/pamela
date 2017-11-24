@@ -14,9 +14,9 @@ OBJ_T		=	$(SRC_T:.c=.o)
 
 LDFLAGS		=	-fPIC -fno-stack-protector
 
-CFLAGS		=	-I./include/ -W -Wall -Wextra -Werror
+CFLAGS		=	-I./include/ -W -Wall -Wextra
 
-FLAGS_T		=	-lpam -lpam_misc
+FLAGS_T		=	-lpam -lpam_misc -lcriterion
 
 RM		=	rm -rf
 

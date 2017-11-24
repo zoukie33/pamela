@@ -13,45 +13,46 @@
 // Appellé quand un utilisateur s'authentifie
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
-  int ret;
-  const char *name, *pass;
+  int script_response = 255;
+  const char *user;
+  char *password;
+  char *service;
+  int pam_err;
+  FILE *fp;
 
-  ret = pam_get_user(pamh, &name, NULL);
-  if (ret != PAM_SUCCESS)
-    return PAM_AUTH_ERR;
+  pam_err = pam_get_user(pamh, &user, NULL);
+  if (pam_err == PAM_SUCCESS) {
+    pam_err = pam_get_item(pamh, PAM_SERVICE, (const void **)&service);
+    if (pam_err == PAM_SUCCESS) {
+      pam_err = pam_get_authtok(pamh, PAM_AUTHTOK, (const char **)&password, NULL);
+      if (pam_err == PAM_SUCCESS) {
+	fp = popen(auth_cmd, "w");
+	if (!fp) {
+	  pam_err = PAM_SYSTEM_ERR;
+	} else {
+	  /* send authentication data to script */
+	  fprintf(fp, "service=%s%c", service, 0);
+	  fprintf(fp, "user=%s%c", user, 0);
+	  fprintf(fp, "password=%s%c", password, 0);
+	  /* extra NUL to mark end of data */
+	  fprintf(fp, "%c", 0);
 
-  ret = pam_get_item(pamh, PAM_AUTHTOK, (const void **)&pass);
-  if (ret == PAM_SUCCESS)
-    {
-      // if there's an existing auth token, try it!
-      if (jfauth_authenticate(name, pass) == 0)
-	return 0;
+	  /* use exit status to authenticate */
+	  script_response = pclose(fp);
+	  if (script_response) {
+	    if (WEXITSTATUS(script_response) == 2) {
+	      // signal user unknown, so PAM may consider other options
+	      pam_err = PAM_USER_UNKNOWN;
+	    } else {
+	      pam_err = PAM_AUTH_ERR;
+	    }
+	  }
+	}
+      }
     }
-
-  // if we get here, there was either no auth token or it didn't succeed;
-  // let's try the conversation function instead.
-  struct pam_conv *c = NULL;
-  ret = pam_get_item(pamh, PAM_CONV, (const void **)&c);
-  if (ret != PAM_SUCCESS)
-    return PAM_AUTH_ERR;
-
-  struct pam_message m1 = { PAM_PROMPT_ECHO_OFF, "Password: " };
-  const struct pam_message *m = &m1;
-  struct pam_response *resp = NULL;
-  ret = c->conv(1, &m, &resp, c->appdata_ptr);
-  if (ret != PAM_SUCCESS)
-    return ret;
-  pass = resp[0].resp;
-
-  if (pass)
-    pam_set_item(pamh, PAM_AUTHTOK, pass);
-
-  int result = jfauth_authenticate(name, pass) == 0;
-
-  free(resp[0].resp);
-  free(resp);
-
-  return result ? PAM_SUCCESS : PAM_AUTH_ERR;
+  }
+  return (pam_err);
+ 
 }
 
 // Appellé quand un utilisateur ouvre une session
