@@ -66,7 +66,7 @@ ifeq ("$(wildcard /lib/security)", "")
 else
 				@echo "Suppression de de pamela so."
 				make clean
-				@$(RM) /lib/security
+				@$(RM) /lib/security/$(NAME)
 				@head -n -1 /etc/pam.d/common-auth > /tmp/common-auth && mv /tmp/common-auth /etc/pam.d/common-auth
 				@head -n -1 /etc/pam.d/common-account > /tmp/common-account && mv /tmp/common-account /etc/pam.d/common-account
 				@printf "\033[0;32mPAM module uninstalled successfully\n\033[0m"
