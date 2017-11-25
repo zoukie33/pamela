@@ -62,11 +62,11 @@ endif
 
 uninstall	:
 
-ifeq ("$(wildcard /lib/security/)", "")
+ifeq ("$(wildcard /lib/security/$(NAME))", "")
 				@printf "\033[0;31mPAM module not installed\n\033[0m"
 else
 				@echo "Suppression de de pamela so."
-				make clean
+				make fclean
 				$(RM) /lib/security/$(NAME)
 				sudo sed -i '/auth sufficient pamela.so /d' /etc/pam.d/common-account
 				sudo sed -i '/account sufficient pamela.so /d' /etc/pam.d/common-auth
@@ -74,7 +74,7 @@ else
 endif
 
 check		:
-ifeq ("$(wildcard /lib/security)", "")
+ifeq ("$(wildcard /lib/security/$(NAME))", "")
 				@printf "\033[0;31mPAM module not installed\n\033[0m"
 else
 				@printf "\033[0;32mPAM module installed\n\033[0m"
