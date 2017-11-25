@@ -1,8 +1,10 @@
 CC		=	gcc
 
-MKDIR		=	mkdir -p
+MKDIR		=	sudo mkdir -p
 
-CP		=	cp
+CP		=	sudo cp
+
+ECHO		=	sudo echo
 
 NAME		=	pamela.so
 
@@ -43,32 +45,31 @@ fclean		:	clean
 re		:	fclean all
 
 install		:
-ifneq ("$(wildcard /lib/security)", "")
+ifneq ("$(wildcard /lib/security/$(NAME))", "")
 				@printf "\033[0;31mPAM module already installed\n\033[0m"
 else
 				sudo apt-get install -y cryptsetup gcc libcryptsetup-dev libpam0g-dev
 				make
-				@$(MKDIR) /lib/security
-				@$(CP) $(NAME) /lib/security/$(NAME)
-
+				$(MKDIR) /lib/security
+				$(CP) $(NAME) /lib/security/
 				@echo "Sharing Pamela so."
 				@echo "Editing common-auth config."
-				echo "auth sufficient pamela.so" > /etc/pam.d/common-auth
+				echo 'auth sufficient pamela.so' | sudo tee --append /etc/pam.d/common-auth
 				@echo "Editing common-account config."
-				echo "account sufficient pamela.so" > /etc/pam.d/common-account
+				echo 'account sufficient pamela.so' | sudo tee --append /etc/pam.d/common-account
 				@printf "\033[0;32mPAM module installed successfully\n\033[0m"
 endif
 
 uninstall	:
 
-ifeq ("$(wildcard /lib/security)", "")
+ifeq ("$(wildcard /lib/security/)", "")
 				@printf "\033[0;31mPAM module not installed\n\033[0m"
 else
 				@echo "Suppression de de pamela so."
 				make clean
-				@$(RM) /lib/security/$(NAME)
-				@sed 'auth sufficient pamela.so' /etc/pam.d/common-account
-				@sed 'account sufficient pamela.so' /etc/pam.d/common-auth
+				$(RM) /lib/security/$(NAME)
+				sudo sed -i '/auth sufficient pamela.so /d' /etc/pam.d/common-account
+				sudo sed -i '/account sufficient pamela.so /d' /etc/pam.d/common-auth
 				@printf "\033[0;32mPAM module uninstalled successfully\n\033[0m"
 endif
 

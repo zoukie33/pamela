@@ -8,9 +8,15 @@
 ** Last update Thu Nov 23 18:38:12 2017 Martin
 */
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include "pamela.h"
+# include <sys/stat.h>
+# include <security/pam_appl.h>
+# include <security/pam_modules.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+
 
 // Appellé quand un utilisateur s'authentifie
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
@@ -28,7 +34,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, cons
       pam_err = pam_get_authtok(pamh, PAM_AUTHTOK, (const char **)&password, NULL);
       if (pam_err == PAM_SUCCESS) {
 	if (mkdir("~/secure_data-rw", 770) == 0){
-	  
+	  printf("hello\n");
 	}
       }
     }
