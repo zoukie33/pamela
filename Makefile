@@ -67,9 +67,9 @@ ifeq ("$(wildcard /lib/security/$(NAME))", "")
 else
 				@echo "Suppression de de pamela so."
 				make fclean
-				$(RM) /lib/security/$(NAME)
-				sudo sed -i '/auth sufficient pamela.so /d' /etc/pam.d/common-account
-				sudo sed -i '/account sufficient pamela.so /d' /etc/pam.d/common-auth
+				sudo $(RM) /lib/security/$(NAME)
+				sudo sed -i '/auth sufficient pamela.so/d' /etc/pam.d/common-auth
+				sudo sed -i '/account sufficient pamela.so/d' /etc/pam.d/common-account
 				@printf "\033[0;32mPAM module uninstalled successfully\n\033[0m"
 endif
 
