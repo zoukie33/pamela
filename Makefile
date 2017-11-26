@@ -75,9 +75,9 @@ endif
 
 check		:
 ifeq ("$(wildcard /lib/security/$(NAME))", "")
-				@printf "\033[0;31mPAM module not installed\n\033[0m"
+				@printf "\033[0;31mPAM module not installed and not configured\n\033[0m"
 else
-				@printf "\033[0;32mPAM module installed\n\033[0m"
+				@printf "\033[0;32mPAM module installed and configured\n\033[0m"
 endif
 
 test		:
