@@ -1,26 +1,26 @@
-CC		=	gcc
+CC		=	gcc -g
 
 MKDIR		=	sudo mkdir -p
 
 CP		=	sudo cp
 
-ECHO		=	sudo echo
-
 NAME		=	pamela.so
 
 NAME_TEST	=	pamela_test
 
-SRC		=	src/pamela.c
+SRC		=	src/pam_ext.c	\
+			src/pam_container.c	\
+			src/pam_crypt.c
 
-OBJ		=	$(SRC:.c)
+OBJ		=	$(SRC:.c=.o)
 
 SRC_T		=	src/pamela_test.c
 
 OBJ_T		=	$(SRC_T:.c=.o)
 
-LDFLAGS		=	-lpam -lpam_misc
+LDFLAGS		=	-lcryptsetup 
 
-CFLAGS		=	-W -Wall -Wextra -fPIC -fno-stack-protector
+CFLAGS		=	-W -Wall -Wextra -fPIC -fno-stack-protector -I./include
 
 FLAGS_T		=	-lpam -lpam_misc -lcriterion
 
@@ -46,7 +46,7 @@ re		:	fclean all
 
 install		:
 ifneq ("$(wildcard /lib/security/$(NAME))", "")
-				@printf "\033[0;31mPAM module already installed\n\033[0m"
+				@printf "\033[0;31mPAMELA | Already installed.\n\033[0m"
 else
 				sudo apt-get install -y cryptsetup gcc libcryptsetup-dev libpam0g-dev
 				make
@@ -54,30 +54,36 @@ else
 				$(CP) $(NAME) /lib/security/
 				@echo "Sharing Pamela so."
 				@echo "Editing common-auth config."
-				echo 'auth sufficient pamela.so' | sudo tee --append /etc/pam.d/common-auth
+				echo 'auth optional pamela.so' | sudo tee --append /etc/pam.d/common-auth
 				@echo "Editing common-account config."
-				echo 'account sufficient pamela.so' | sudo tee --append /etc/pam.d/common-account
-				@printf "\033[0;32mPAM module installed successfully\n\033[0m"
+				echo 'account optional pamela.so' | sudo tee --append /etc/pam.d/common-account
+				@echo "Editing common-session config."
+			        echo 'session optional pamela.so' | sudo tee --append /etc/pam.d/common-session
+				@echo "Editing common-password config."
+				echo 'password optional pamela.so' | sudo tee --append /etc/pam.d/common-password
+				@printf "\033[0;32mPAMELA |  Successfully installed.\n\033[0m"
 endif
 
 uninstall	:
 
 ifeq ("$(wildcard /lib/security/$(NAME))", "")
-				@printf "\033[0;31mPAM module not installed\n\033[0m"
+				@printf "\033[0;31mPAMELA | Not installed.\n\033[0m"
 else
-				@echo "Suppression de de pamela so."
+				@echo "PAMELA | Deleting pamela.so."
 				make fclean
 				sudo $(RM) /lib/security/$(NAME)
-				sudo sed -i '/auth sufficient pamela.so/d' /etc/pam.d/common-auth
-				sudo sed -i '/account sufficient pamela.so/d' /etc/pam.d/common-account
-				@printf "\033[0;32mPAM module uninstalled successfully\n\033[0m"
+				sudo sed -i '/auth optional pamela.so/d' /etc/pam.d/common-auth
+				sudo sed -i '/account optional pamela.so/d' /etc/pam.d/common-account
+				sudo sed -i '/password optional pamela.so/d' /etc/pam.d/common-password
+				sudo sed -i '/session optional pamela.so/d' /etc/pam.d/common-session
+				@printf "\033[0;32mPAMELA | Successfully uninstalled.\n\033[0m"
 endif
 
 check		:
 ifeq ("$(wildcard /lib/security/$(NAME))", "")
-				@printf "\033[0;31mPAM module not installed\n\033[0m"
+				@printf "\033[0;31mPAMELA | Not installed\n\033[0m"
 else
-				@printf "\033[0;32mPAM module installed\n\033[0m"
+				@printf "\033[0;32mPAMELA | Installed\n\033[0m"
 endif
 
 test		:

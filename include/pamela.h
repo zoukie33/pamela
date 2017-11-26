@@ -13,20 +13,25 @@
 # include <security/pam_modules.h>
 # include <sys/types.h>
 # include <sys/wait.h>
+# include <pwd.h>
+
+# include <libcryptsetup.h>
 
 # define BUFFER     512
 # define CONTAINER  100
 
 // Fonctions de manipulations de container
 
-int	exec(const char *, ...);
-int	container_open(const char *, const char *);
-int	container_close(const char *);
-int	container_create(const char *, const char *, const char *);
+int		exec(const char *, ...);
+int		container_open(const char *, const char *);
+int		container_close(const char *);
+int		container_create(const char *, const char *, const char *);
 
 // fonctions de chiffrement avec luks
 
-int	crypt_container_format(const char *, const char *);
-int	crypt_container_open(const char *, const char*);
+int		crypt_container_format(const char *, const char *);
+int		crypt_container_open(const char *, const char*);
+
+const char	*get_home(const char *);
 
 #endif /* PAMELA_H_ */
