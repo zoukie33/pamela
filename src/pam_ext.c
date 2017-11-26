@@ -83,5 +83,5 @@ PAM_EXTERN int  pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, co
 // Appellé quand le mot de passe est changé
 PAM_EXTERN int  pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
-  return PAM_IGNORE;
+  return PAM_SUCCESS;
 }
